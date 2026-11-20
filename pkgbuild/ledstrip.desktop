@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=LED Strip
+Name[fr]=Ruban LED
+Name[ar]=شريط LED
+Comment=Control your Bluetooth LED strip
+Comment[fr]=Contrôlez votre ruban LED Bluetooth
+Comment[ar]=تحكم في شريط LED عبر البلوتوث
+Keywords=led;light;strip;rgb;bluetooth;lamp;
+Exec=ledstrip
+Icon=ledstrip
+Terminal=false
+Categories=Utility;
+StartupWMClass=ledstrip
