@@ -5,6 +5,14 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 mkdir -p "$ROOT/build/tests"
 cd "$ROOT/build/tests"
 
-qmake6 "$ROOT/tests/ledstrip_tests.pro"
-make -j"$(nproc)"
+QMAKE=$(command -v qmake6 2>/dev/null || command -v qmake 2>/dev/null || true)
+if [ -z "$QMAKE" ]; then
+    echo "error: qmake not found. Install Qt 6 (qt6-base on Linux, 'brew install qt' on macOS)." >&2
+    exit 1
+fi
+
+JOBS=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
+
+"$QMAKE" "$ROOT/tests/ledstrip_tests.pro"
+make -j"$JOBS"
 QT_QPA_PLATFORM=offscreen ./ledstrip_tests

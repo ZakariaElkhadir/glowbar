@@ -1,0 +1,114 @@
+#!/usr/bin/env -S uv run --script --quiet
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["bleak"]
+# ///
+"""Control an LEDBLE-01 Bluetooth LED strip from the terminal.
+
+Usage:
+  led on | off
+  led <color>            red green blue white warm yellow orange pink purple cyan
+  led <R> <G> <B>        e.g. led 255 120 0
+  led '#ff8800'          hex color
+  led theme              current Omarchy theme lighting color
+  led bright <0-100>     brightness (experimental)
+
+Finds the first strip named LEDBLE-*. Set LED_ADDR to a Bluetooth address
+to pick a strip and skip the search.
+Phone Bluetooth must be off (the controller accepts one connection at a time).
+"""
+import asyncio
+import os
+import sys
+
+from bleak import BleakClient, BleakScanner
+
+ADDR = os.environ.get("LED_ADDR")
+NAME_PREFIX = "LEDBLE"
+CHAR = "0000ffe1-0000-1000-8000-00805f9b34fb"
+THEME_RGB = os.path.expanduser("~/.local/state/omarchy/current/theme/keyboard.rgb")
+
+COLORS = {
+    "red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255),
+    "white": (255, 255, 255), "warm": (255, 150, 50), "yellow": (255, 200, 0),
+    "orange": (255, 80, 0), "pink": (255, 40, 120), "purple": (160, 0, 255),
+    "cyan": (0, 255, 255),
+}
+
+ON = bytes.fromhex("7eff0401ffffffffef")
+OFF = bytes.fromhex("7eff0400ffffffffef")
+
+
+def rgb_packet(r, g, b):
+    return bytes([0x7E, 0xFF, 0x05, 0x03, r, g, b, 0xFF, 0xEF])
+
+
+def hex_to_rgb(s):
+    s = s.strip().lstrip("#")
+    if len(s) != 6:
+        raise ValueError(f"bad hex color: {s}")
+    return tuple(int(s[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def die(msg):
+    print(f"led: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def parse(args):
+    if not args or args[0] in ("-h", "--help", "help"):
+        print(__doc__.strip())
+        sys.exit(0)
+    a = args[0].lower()
+    if a == "on":
+        return [ON]
+    if a == "off":
+        return [OFF]
+    if a == "theme":
+        try:
+            with open(THEME_RGB) as f:
+                return [ON, rgb_packet(*hex_to_rgb(f.read()))]
+        except (OSError, ValueError) as e:
+            die(f"can't read theme color: {e}")
+    if a in ("bright", "brightness"):
+        if len(args) != 2 or not args[1].isdigit() or not 0 <= int(args[1]) <= 100:
+            die("usage: led bright <0-100>")
+        return [bytes([0x7E, 0xFF, 0x01, int(args[1]), 0x00, 0xFF, 0xFF, 0xFF, 0xEF])]
+    if a in COLORS:
+        return [ON, rgb_packet(*COLORS[a])]
+    if a.startswith("#") or (len(a) == 6 and all(c in "0123456789abcdef" for c in a)):
+        try:
+            return [ON, rgb_packet(*hex_to_rgb(a))]
+        except ValueError as e:
+            die(str(e))
+    if len(args) == 3 and all(x.isdigit() and 0 <= int(x) <= 255 for x in args):
+        return [ON, rgb_packet(*map(int, args))]
+    die(f"unknown command: {' '.join(args)} (try: led help)")
+
+
+async def send(packets):
+    # The controller drops connections every few seconds, so retry from
+    # where we left off.
+    sent = 0
+    for _ in range(4):
+        if ADDR:
+            dev = await BleakScanner.find_device_by_address(ADDR, timeout=10)
+        else:
+            dev = await BleakScanner.find_device_by_filter(
+                lambda d, _: (d.name or "").startswith(NAME_PREFIX), timeout=10)
+        if not dev:
+            continue
+        try:
+            async with BleakClient(dev, timeout=15) as c:
+                while sent < len(packets):
+                    await c.write_gatt_char(CHAR, packets[sent], response=False)
+                    sent += 1
+                    await asyncio.sleep(0.15)
+            return
+        except Exception:
+            await asyncio.sleep(0.5)
+    die("strip not found or not responding (is phone Bluetooth off and the strip powered?)")
+
+
+if __name__ == "__main__":
+    asyncio.run(send(parse(sys.argv[1:])))

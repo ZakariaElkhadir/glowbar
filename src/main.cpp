@@ -1,4 +1,7 @@
-// ledstrip — control a Bluetooth LED strip from the desktop.
+/**
+ * @file main.cpp
+ * @brief ledstrip — control a Bluetooth LED strip from the desktop.
+ */
 
 #include <QGuiApplication>
 #include <QIcon>
@@ -17,15 +20,15 @@ int main(int argc, char *argv[]) {
     app.setApplicationName("ledstrip");
     app.setApplicationVersion("0.1.0");
 
-    // Matches the window to ledstrip.desktop, so the compositor (Wayland
+    // Matches the window to ledstrip.desktop so the compositor (Wayland
     // app_id) and the launcher pick up the installed icon.
     app.setDesktopFileName("ledstrip");
     app.setWindowIcon(QIcon::fromTheme("ledstrip"));
 
     QQuickStyle::setStyle("Material");
 
-    // Installed before anything is translated, and every qsTr() binding is
-    // re-evaluated when the Omarchy language changes.
+    // Install before anything is translated; every qsTr() binding is
+    // re-evaluated automatically when the Omarchy language changes.
     Translator translator;
     app.installTranslator(&translator);
 
@@ -41,7 +44,8 @@ int main(int argc, char *argv[]) {
     if (engine.rootObjects().isEmpty())
         return 1;
 
-    // Search once the window is up, so it shows what's happening.
+    // Defer the initial scan until the window is visible so the UI can show
+    // what is happening while the search runs.
     QTimer::singleShot(0, &backend, &Backend::connectToStrip);
 
     return app.exec();

@@ -3,5 +3,36 @@ set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 "$ROOT/bin/build"
-cd "$ROOT/pkgbuild"
-exec makepkg -fsi "$@"
+
+OS=$(uname -s)
+
+case "$OS" in
+  Linux)
+    # Arch Linux
+    if command -v makepkg >/dev/null 2>&1; then
+        cd "$ROOT/pkgbuild"
+        exec makepkg -fsi "$@"
+    fi
+    # Generic Linux: install to /usr/local
+    PREFIX="${PREFIX:-/usr/local}"
+    install -Dm755 "$ROOT/build/ledstrip" "$PREFIX/bin/ledstrip"
+    install -Dm644 "$ROOT/LICENSE" "$PREFIX/share/licenses/ledstrip/LICENSE"
+    install -Dm644 "$ROOT/pkgbuild/ledstrip.svg" "$PREFIX/share/icons/hicolor/scalable/apps/ledstrip.svg"
+    install -Dm644 "$ROOT/pkgbuild/ledstrip.desktop" "$PREFIX/share/applications/ledstrip.desktop"
+    echo "Installed to $PREFIX"
+    ;;
+  Darwin)
+    APP="$ROOT/build/ledstrip.app"
+    DEST="${PREFIX:-/Applications}"
+    if [ ! -d "$APP" ]; then
+        echo "error: $APP not found. Run bin/build first." >&2
+        exit 1
+    fi
+    cp -r "$APP" "$DEST/"
+    echo "Installed $DEST/ledstrip.app"
+    ;;
+  *)
+    echo "error: unsupported OS: $OS" >&2
+    exit 1
+    ;;
+esac

@@ -22,10 +22,14 @@ Theme::Theme(const QString &directory, QObject *parent, const QString &hyprctl)
 
     // Corners follow Hyprland's effective rounding, which themes and personal
     // overrides can both set, so ask hyprctl rather than reading its config.
-    // Without Hyprland the corners stay sharp, like Omarchy's default.
+    // On non-Hyprland systems (including macOS) the radius stays at 0.
+#ifdef Q_OS_LINUX
     m_hyprctl = !hyprctl.isEmpty() ? hyprctl
               : directory.isEmpty() && !qEnvironmentVariableIsEmpty("HYPRLAND_INSTANCE_SIGNATURE")
                   ? QStandardPaths::findExecutable("hyprctl") : QString();
+#else
+    m_hyprctl = !hyprctl.isEmpty() ? hyprctl : QString();
+#endif
     m_roundingTimeout.setSingleShot(true);
     m_roundingTimeout.setInterval(500);
     connect(&m_roundingTimeout, &QTimer::timeout, &m_roundingProcess, &QProcess::kill);
@@ -73,7 +77,6 @@ QString Theme::readAccent(const QString &path) {
     return "#FFD60A";
 }
 
-// Black or white, whichever reads on the accent (WCAG relative luminance).
 QString Theme::accentForeground() const {
     const QColor c(m_accent);
     auto linear = [](double v) { return v <= .04045 ? v / 12.92 : std::pow((v + .055) / 1.055, 2.4); };

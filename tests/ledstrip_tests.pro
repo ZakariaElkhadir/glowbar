@@ -5,6 +5,6 @@ TEMPLATE = app
 
 INCLUDEPATH += ../src
 
-HEADERS += ../src/backend.h ../src/protocol.h ../src/theme.h ../src/translator.h
-SOURCES += ledstrip_tests.cpp ../src/backend.cpp ../src/protocol.cpp ../src/theme.cpp ../src/translator.cpp
+HEADERS += ../src/backend.h ../src/stripprotocol.h ../src/ledbleprotocol.h ../src/theme.h ../src/translator.h
+SOURCES += ledstrip_tests.cpp ../src/backend.cpp ../src/stripprotocol.cpp ../src/ledbleprotocol.cpp ../src/theme.cpp ../src/translator.cpp
 RESOURCES += ../src/resources.qrc

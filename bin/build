@@ -5,7 +5,17 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 mkdir -p "$ROOT/build"
 cd "$ROOT/build"
 
-qmake6 "$ROOT/ledstrip.pro"
-make -j"$(nproc)"
+# Prefer qmake6; fall back to qmake (macOS Homebrew installs it as qmake).
+QMAKE=$(command -v qmake6 2>/dev/null || command -v qmake 2>/dev/null || true)
+if [ -z "$QMAKE" ]; then
+    echo "error: qmake not found. Install Qt 6 (qt6-base on Linux, 'brew install qt' on macOS)." >&2
+    exit 1
+fi
+
+# Parallelism: nproc on Linux, sysctl on macOS.
+JOBS=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
+
+"$QMAKE" "$ROOT/ledstrip.pro"
+make -j"$JOBS"
 
 echo "Built $ROOT/build/ledstrip"

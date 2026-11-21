@@ -21,7 +21,6 @@ Translator::Translator(const QString &languageFile, const QString &catalogDirect
     reload();
 }
 
-// One registry code on the first line; anything else, or no file, is English.
 QString Translator::readLanguage(const QString &path) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
@@ -31,8 +30,6 @@ QString Translator::readLanguage(const QString &path) {
     return valid.match(code).hasMatch() ? code : "en";
 }
 
-// CLDR cardinal plural categories for whole counts, for Omarchy's languages
-// (the same rules as Omarchy's shell/Commons/Plural.js).
 QString Translator::pluralCategory(const QString &language, long long count) {
     const long long n = count < 0 ? -count : count, n10 = n % 10, n100 = n % 100;
     const bool millions = n != 0 && n % 1000000 == 0;
@@ -65,9 +62,6 @@ QString Translator::pluralCategory(const QString &language, long long count) {
     return n == 1 ? "one" : "other";
 }
 
-// The locale Omarchy formats this language with, from its registry, so the
-// app's numbers and dates match the desktop's (Arabic there uses Western
-// digits); without Omarchy, Qt's own locale for the code.
 QLocale Translator::formatLocale(const QString &language) {
     QFile registry(qEnvironmentVariable("OMARCHY_PATH") + "/default/i18n/locales.json");
     if (registry.open(QIODevice::ReadOnly)) {
@@ -80,7 +74,6 @@ QLocale Translator::formatLocale(const QString &language) {
 }
 
 QString Translator::translate(const char *, const char *sourceText, const char *, int n) const {
-    // A null string tells Qt there is no translation, so it shows the English.
     const QJsonValue value = m_strings.value(QString::fromUtf8(sourceText));
     if (value.isString())
         return value.toString();
@@ -97,22 +90,21 @@ void Translator::reload() {
     if (!paths.isEmpty())
         m_watcher.removePaths(paths);
 
-    // omarchy-language replaces the file, which drops it from the watch, and a
-    // first pick creates it; watch its directory too and re-arm every time.
+    // omarchy-language replaces the file by creating a new one, which removes
+    // it from the watch; watch the parent directory too and re-arm each time.
     const QString directory = QFileInfo(m_languageFile).absolutePath();
     if (QFileInfo::exists(directory))
         m_watcher.addPath(directory);
     if (QFileInfo::exists(m_languageFile))
         m_watcher.addPath(m_languageFile);
 
-    // Catalogs are compiled in, so only a different language needs a reload.
     const QString language = readLanguage(m_languageFile);
     if (language == m_language)
         return;
 
-    // English first (it carries the plural forms of counted strings), then
-    // the base language and the regional file over it (pt, then pt-BR), so a
-    // missing string falls back toward English one step at a time.
+    // Load English first so it supplies plural forms for counted strings, then
+    // layer the base language and the regional variant on top (pt → pt-BR),
+    // so any missing string falls back toward English one step at a time.
     QHash<QString, QJsonValue> strings;
     QStringList codes{"en", language.section('-', 0, 0), language};
     codes.removeDuplicates();
@@ -128,8 +120,9 @@ void Translator::reload() {
 
     m_language = language;
     m_strings = strings;
-    // Dates, numbers, and Qt's own day and month names follow the language
-    // too, and right-to-left languages mirror the window.
+
+    // Apply the locale so numbers, dates, and Qt's built-in day/month names
+    // match the active language; RTL languages also mirror the window layout.
     const QLocale locale = formatLocale(language);
     QLocale::setDefault(locale);
     QGuiApplication::setLayoutDirection(locale.textDirection());

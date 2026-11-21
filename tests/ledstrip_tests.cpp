@@ -4,7 +4,8 @@
 #include <QtTest>
 
 #include "backend.h"
-#include "protocol.h"
+#include "ledbleprotocol.h"
+#include "stripprotocol.h"
 #include "theme.h"
 #include "translator.h"
 
@@ -14,32 +15,36 @@ class LedstripTests : public QObject {
 private slots:
     void powerPackets()
     {
-        QCOMPARE(Protocol::power(true).toHex(' '), QByteArray("7e ff 04 01 ff ff ff ff ef"));
-        QCOMPARE(Protocol::power(false).toHex(' '), QByteArray("7e ff 04 00 ff ff ff ff ef"));
+        const LedbleProtocol ledble;
+        QCOMPARE(ledble.powerOnPacket().toHex(' '), QByteArray("7e ff 04 01 ff ff ff ff ef"));
+        QCOMPARE(ledble.powerOffPacket().toHex(' '), QByteArray("7e ff 04 00 ff ff ff ff ef"));
     }
 
     void colorPacket()
     {
-        QCOMPARE(Protocol::color(QColor(255, 128, 0), 100).toHex(' '), QByteArray("7e ff 05 03 ff 80 00 ff ef"));
+        const LedbleProtocol ledble;
+        QCOMPARE(ledble.colorPacket(QColor(255, 128, 0), 100).toHex(' '), QByteArray("7e ff 05 03 ff 80 00 ff ef"));
     }
 
     void brightnessScalesTheColor()
     {
-        QCOMPARE(Protocol::scaled(QColor(255, 100, 0), 50), QColor(128, 50, 0));
-        QCOMPARE(Protocol::color(QColor(255, 255, 255), 0).toHex(' '), QByteArray("7e ff 05 03 00 00 00 ff ef"));
+        const LedbleProtocol ledble;
+        QCOMPARE(StripProtocol::scaled(QColor(255, 100, 0), 50), QColor(128, 50, 0));
+        QCOMPARE(ledble.colorPacket(QColor(255, 255, 255), 0).toHex(' '), QByteArray("7e ff 05 03 00 00 00 ff ef"));
     }
 
     void pickingAColorTurnsTheStripOn()
     {
+        const LedbleProtocol ledble;
         QTemporaryDir dir;
         Backend backend(dir.filePath("ledstrip.conf"), dir.path());
         backend.setPower(false);
-        QCOMPARE(backend.pendingPackets(), QList<QByteArray>{Protocol::power(false)});
+        QCOMPARE(backend.pendingPackets(), QList<QByteArray>{ledble.powerOffPacket()});
 
         backend.setColor(QColor("#00ff00"));
         QVERIFY(backend.power());
         QCOMPARE(backend.pendingPackets(),
-                 (QList<QByteArray>{Protocol::power(true), Protocol::color(QColor("#00ff00"), 100)}));
+                 (QList<QByteArray>{ledble.powerOnPacket(), ledble.colorPacket(QColor("#00ff00"), 100)}));
     }
 
     void brightnessStaysInRange()
@@ -146,6 +151,12 @@ private slots:
         QCOMPARE(translator.translate("Main", "Save"), QString("Salvar"));
         QCOMPARE(translator.translate("Main", "Open"), QString("Abrir"));
         QVERIFY(translator.translate("Main", "Quit").isNull());
+    }
+
+    void protocolRegistryIsNotEmpty()
+    {
+        QVERIFY(!StripProtocol::all().isEmpty());
+        QCOMPARE(StripProtocol::all().first()->name(), QString("LEDBLE-01"));
     }
 
 private:
