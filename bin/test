@@ -13,6 +13,6 @@ fi
 
 JOBS=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
 
-"$QMAKE" "$ROOT/tests/ledstrip_tests.pro"
+"$QMAKE" "$ROOT/tests/glowbar_tests.pro"
 make -j"$JOBS"
-QT_QPA_PLATFORM=offscreen ./ledstrip_tests
+QT_QPA_PLATFORM=offscreen ./glowbar_tests

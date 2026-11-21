@@ -9,7 +9,7 @@
 #include "theme.h"
 #include "translator.h"
 
-class LedstripTests : public QObject {
+class GlowbarTests : public QObject {
     Q_OBJECT
 
 private slots:
@@ -37,7 +37,7 @@ private slots:
     {
         const LedbleProtocol ledble;
         QTemporaryDir dir;
-        Backend backend(dir.filePath("ledstrip.conf"), dir.path());
+        Backend backend(dir.filePath("glowbar.conf"), dir.path());
         backend.setPower(false);
         QCOMPARE(backend.pendingPackets(), QList<QByteArray>{ledble.powerOffPacket()});
 
@@ -50,7 +50,7 @@ private slots:
     void brightnessStaysInRange()
     {
         QTemporaryDir dir;
-        Backend backend(dir.filePath("ledstrip.conf"), dir.path());
+        Backend backend(dir.filePath("glowbar.conf"), dir.path());
         backend.setBrightness(500);
         QCOMPARE(backend.brightness(), 100);
         backend.setBrightness(-3);
@@ -61,11 +61,11 @@ private slots:
     {
         QTemporaryDir dir;
         {
-            Backend backend(dir.filePath("ledstrip.conf"), dir.path());
+            Backend backend(dir.filePath("glowbar.conf"), dir.path());
             backend.setColor(QColor("#123456"));
             backend.setBrightness(40);
         }
-        Backend backend(dir.filePath("ledstrip.conf"), dir.path());
+        Backend backend(dir.filePath("glowbar.conf"), dir.path());
         QCOMPARE(backend.color(), QColor("#123456"));
         QCOMPARE(backend.brightness(), 40);
         QVERIFY(backend.pendingPackets().isEmpty());
@@ -75,7 +75,7 @@ private slots:
     {
         QTemporaryDir dir;
         write(dir.filePath("colors.toml"), "accent = \"#112233\"\n");
-        Backend backend(dir.filePath("ledstrip.conf"), dir.path());
+        Backend backend(dir.filePath("glowbar.conf"), dir.path());
         QCOMPARE(backend.themeLightColor(), QColor("#112233"));
 
         // Tokyo Night writes it without the hash.
@@ -86,7 +86,7 @@ private slots:
     void themeLightFallsBack()
     {
         QTemporaryDir dir;
-        Backend backend(dir.filePath("ledstrip.conf"), dir.path());
+        Backend backend(dir.filePath("glowbar.conf"), dir.path());
         QCOMPARE(backend.themeLightColor(), QColor("#FFD60A"));
     }
 
@@ -185,5 +185,5 @@ private:
     }
 };
 
-QTEST_MAIN(LedstripTests)
-#include "ledstrip_tests.moc"
+QTEST_MAIN(GlowbarTests)
+#include "glowbar_tests.moc"

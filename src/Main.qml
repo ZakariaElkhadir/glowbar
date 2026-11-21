@@ -10,7 +10,7 @@ ApplicationWindow {
     minimumWidth: 420
     minimumHeight: 560
     visible: true
-    title: qsTr("LED Strip")
+    title: "Glowbar"
     color: Neo.background
 
     font.family: Neo.body
@@ -231,8 +231,7 @@ ApplicationWindow {
 
                         Display {
                             Layout.fillWidth: true
-                            // Stack the words in the narrow column, as on a label.
-                            text: win.wide ? qsTr("LED Strip").replace(" ", "\n") : qsTr("LED Strip")
+                            text: "Glowbar"
                             font.pixelSize: 26
                             wrapMode: Text.Wrap
                         }

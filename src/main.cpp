@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- * @brief ledstrip — control a Bluetooth LED strip from the desktop.
+ * @brief glowbar — control a Bluetooth LED strip from the desktop.
  */
 
 #include <QFontDatabase>
@@ -18,13 +18,13 @@
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
-    app.setApplicationName("ledstrip");
+    app.setApplicationName("glowbar");
     app.setApplicationVersion("0.1.0");
 
-    // Matches the window to ledstrip.desktop so the compositor (Wayland
+    // Matches the window to glowbar.desktop so the compositor (Wayland
     // app_id) and the launcher pick up the installed icon.
-    app.setDesktopFileName("ledstrip");
-    app.setWindowIcon(QIcon::fromTheme("ledstrip"));
+    app.setDesktopFileName("glowbar");
+    app.setWindowIcon(QIcon::fromTheme("glowbar"));
 
     // Every control is drawn by the app, so the plain style is enough.
     QQuickStyle::setStyle("Basic");

@@ -44,7 +44,8 @@ public:
     /**
      * @brief Constructs the backend and restores persisted light settings.
      * @param settingsPath   Path to the INI settings file.
-     *                       Defaults to @c ~/.config/ledstrip/ledstrip.conf.
+     *                       Defaults to @c ~/.config/glowbar/glowbar.conf
+     *                       (copied from @c ~/.config/ledstrip/ledstrip.conf once).
      * @param themeDirectory Directory containing the Omarchy theme files.
      *                       Defaults to @c ~/.local/state/omarchy/current/theme.
      * @param parent         Optional QObject parent.

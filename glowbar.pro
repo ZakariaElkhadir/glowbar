@@ -1,7 +1,7 @@
 QT += core gui qml quick quickcontrols2 bluetooth
 
 CONFIG += c++17 release
-TARGET = ledstrip
+TARGET = glowbar
 TEMPLATE = app
 
 HEADERS += \
@@ -23,7 +23,7 @@ RESOURCES += src/resources.qrc
 
 macx {
     QMAKE_INFO_PLIST = macos/Info.plist
-    ICON = macos/ledstrip.icns
+    ICON = macos/glowbar.icns
     # Required by macOS for Bluetooth access.
     QMAKE_POST_LINK += macdeployqt $${TARGET}.app
 }

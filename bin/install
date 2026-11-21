@@ -15,22 +15,22 @@ case "$OS" in
     fi
     # Generic Linux: install to /usr/local
     PREFIX="${PREFIX:-/usr/local}"
-    install -Dm755 "$ROOT/build/ledstrip" "$PREFIX/bin/ledstrip"
-    install -Dm644 "$ROOT/LICENSE" "$PREFIX/share/licenses/ledstrip/LICENSE"
-    install -Dm644 -t "$PREFIX/share/licenses/ledstrip/fonts" "$ROOT"/src/fonts/OFL-*.txt
-    install -Dm644 "$ROOT/pkgbuild/ledstrip.svg" "$PREFIX/share/icons/hicolor/scalable/apps/ledstrip.svg"
-    install -Dm644 "$ROOT/pkgbuild/ledstrip.desktop" "$PREFIX/share/applications/ledstrip.desktop"
+    install -Dm755 "$ROOT/build/glowbar" "$PREFIX/bin/glowbar"
+    install -Dm644 "$ROOT/LICENSE" "$PREFIX/share/licenses/glowbar/LICENSE"
+    install -Dm644 -t "$PREFIX/share/licenses/glowbar/fonts" "$ROOT"/src/fonts/OFL-*.txt
+    install -Dm644 "$ROOT/pkgbuild/glowbar.svg" "$PREFIX/share/icons/hicolor/scalable/apps/glowbar.svg"
+    install -Dm644 "$ROOT/pkgbuild/glowbar.desktop" "$PREFIX/share/applications/glowbar.desktop"
     echo "Installed to $PREFIX"
     ;;
   Darwin)
-    APP="$ROOT/build/ledstrip.app"
+    APP="$ROOT/build/glowbar.app"
     DEST="${PREFIX:-/Applications}"
     if [ ! -d "$APP" ]; then
         echo "error: $APP not found. Run bin/build first." >&2
         exit 1
     fi
     cp -r "$APP" "$DEST/"
-    echo "Installed $DEST/ledstrip.app"
+    echo "Installed $DEST/glowbar.app"
     ;;
   *)
     echo "error: unsupported OS: $OS" >&2

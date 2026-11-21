@@ -14,12 +14,25 @@
 
 namespace {
 const QColor kFallbackColor("#FFD60A");
+
+// The app was called ledstrip before; carry its settings (the remembered
+// strip, color and brightness) over to the new name once.
+QString defaultSettingsPath() {
+    const QString config = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    const QString path = config + "/glowbar/glowbar.conf";
+    const QString legacy = config + "/ledstrip/ledstrip.conf";
+    if (!QFile::exists(path) && QFile::exists(legacy)) {
+        QDir().mkpath(config + "/glowbar");
+        QFile::copy(legacy, path);
+    }
+    return path;
+}
 }
 
 Backend::Backend(const QString &settingsPath, const QString &themeDirectory, QObject *parent)
     : QObject(parent),
       m_settingsPath(settingsPath.isEmpty()
-                         ? QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/ledstrip/ledstrip.conf"
+                         ? defaultSettingsPath()
                          : settingsPath),
       m_themeDirectory(themeDirectory.isEmpty() ? QDir::homePath() + "/.local/state/omarchy/current/theme"
                                                 : themeDirectory) {

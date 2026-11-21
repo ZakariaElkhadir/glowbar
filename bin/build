@@ -15,7 +15,7 @@ fi
 # Parallelism: nproc on Linux, sysctl on macOS.
 JOBS=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
 
-"$QMAKE" "$ROOT/ledstrip.pro"
+"$QMAKE" "$ROOT/glowbar.pro"
 make -j"$JOBS"
 
-echo "Built $ROOT/build/ledstrip"
+echo "Built $ROOT/build/glowbar"

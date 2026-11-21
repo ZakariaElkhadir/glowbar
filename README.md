@@ -1,6 +1,6 @@
-# LED Strip
+# Glowbar
 
-![LED Strip](docs/screenshot.png)
+![Glowbar](docs/screenshot.png)
 
 Control a Bluetooth LED strip from your desktop — switch it on and off, pick a
 color, set the brightness, or match your current theme.
@@ -53,7 +53,7 @@ strip).
 ## Build
 
 ```sh
-bin/build      # → build/ledstrip  (or build/ledstrip.app on macOS)
+bin/build      # → build/glowbar  (or build/glowbar.app on macOS)
 bin/test       # unit tests, runs offscreen
 bin/install    # install system-wide (see notes below)
 ```
@@ -67,11 +67,11 @@ and macOS.
 |----------|------------------------|
 | Arch Linux | Runs `makepkg -fsi` — builds and installs an Arch package |
 | Generic Linux | Copies the binary to `$PREFIX/bin` (default `/usr/local`) |
-| macOS | Copies `ledstrip.app` to `/Applications` (or `$PREFIX`) |
+| macOS | Copies `glowbar.app` to `/Applications` (or `$PREFIX`) |
 
 ### macOS icon
 
-The `macos/` directory needs a `ledstrip.icns` file before building. See
+The `macos/` directory needs a `glowbar.icns` file before building. See
 [`macos/README.md`](macos/README.md) for a one-liner that generates it from
 the SVG.
 

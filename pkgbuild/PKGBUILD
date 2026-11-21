@@ -1,4 +1,4 @@
-pkgname=ledstrip
+pkgname=glowbar
 pkgver=0.1.0
 pkgrel=1
 pkgdesc='Control a Bluetooth LED strip from the desktop'
@@ -6,6 +6,9 @@ arch=('x86_64' 'aarch64')
 license=('MIT')
 depends=('qt6-base' 'qt6-declarative' 'qt6-wayland' 'qt6-connectivity' 'bluez')
 makedepends=('gcc' 'make')
+# Formerly packaged as ledstrip.
+replaces=('ledstrip')
+conflicts=('ledstrip')
 source=()
 sha256sums=()
 
@@ -16,9 +19,9 @@ build() {
 
 package() {
   cd "$startdir/.."
-  install -Dm755 build/ledstrip "$pkgdir/usr/bin/ledstrip"
+  install -Dm755 build/glowbar "$pkgdir/usr/bin/glowbar"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/fonts" src/fonts/OFL-*.txt
-  install -Dm644 "$startdir/ledstrip.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/ledstrip.svg"
-  install -Dm644 "$startdir/ledstrip.desktop" "$pkgdir/usr/share/applications/ledstrip.desktop"
+  install -Dm644 "$startdir/glowbar.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/glowbar.svg"
+  install -Dm644 "$startdir/glowbar.desktop" "$pkgdir/usr/share/applications/glowbar.desktop"
 }
