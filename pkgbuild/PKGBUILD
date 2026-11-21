@@ -18,6 +18,7 @@ package() {
   cd "$startdir/.."
   install -Dm755 build/ledstrip "$pkgdir/usr/bin/ledstrip"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/fonts" src/fonts/OFL-*.txt
   install -Dm644 "$startdir/ledstrip.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/ledstrip.svg"
   install -Dm644 "$startdir/ledstrip.desktop" "$pkgdir/usr/share/applications/ledstrip.desktop"
 }

@@ -1,0 +1,5 @@
+singleton Neo 1.0 Neo.qml
+NbButton 1.0 NbButton.qml
+NbCard 1.0 NbCard.qml
+NbSlider 1.0 NbSlider.qml
+Kbd 1.0 Kbd.qml

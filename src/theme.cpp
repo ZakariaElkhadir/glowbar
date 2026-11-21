@@ -77,6 +77,20 @@ QString Theme::readAccent(const QString &path) {
     return "#FFD60A";
 }
 
+bool Theme::readDark(const QString &directory) {
+    if (QFileInfo::exists(directory + "/light.mode"))
+        return false;
+    QFile file(directory + "/colors.toml");
+    if (file.open(QIODevice::ReadOnly)) {
+        const QRegularExpression expression(R"re(^\s*mode\s*=\s*["'](\w+)["'])re",
+                                            QRegularExpression::MultilineOption);
+        const auto match = expression.match(QString::fromUtf8(file.readAll()));
+        if (match.hasMatch())
+            return match.captured(1).compare("light", Qt::CaseInsensitive) != 0;
+    }
+    return true;
+}
+
 QString Theme::accentForeground() const {
     const QColor c(m_accent);
     auto linear = [](double v) { return v <= .04045 ? v / 12.92 : std::pow((v + .055) / 1.055, 2.4); };
@@ -104,8 +118,10 @@ void Theme::reload() {
             m_watcher.addPath(path);
 
     const auto accent = readAccent(m_directory + "/theme/colors.toml");
-    if (accent != m_accent) {
+    const bool dark = readDark(m_directory + "/theme");
+    if (accent != m_accent || dark != m_dark) {
         m_accent = accent;
+        m_dark = dark;
         emit changed();
     }
 }

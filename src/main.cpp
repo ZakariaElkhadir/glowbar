@@ -3,6 +3,7 @@
  * @brief ledstrip — control a Bluetooth LED strip from the desktop.
  */
 
+#include <QFontDatabase>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QQmlApplicationEngine>
@@ -25,7 +26,12 @@ int main(int argc, char *argv[]) {
     app.setDesktopFileName("ledstrip");
     app.setWindowIcon(QIcon::fromTheme("ledstrip"));
 
-    QQuickStyle::setStyle("Material");
+    // Every control is drawn by the app, so the plain style is enough.
+    QQuickStyle::setStyle("Basic");
+
+    // The neobrutalist look's typefaces ship with the app (SIL OFL).
+    for (const char *font : {"ArchivoBlack-Regular", "SpaceGrotesk", "SpaceMono-Regular", "SpaceMono-Bold"})
+        QFontDatabase::addApplicationFont(QString(":/fonts/%1.ttf").arg(font));
 
     // Install before anything is translated; every qsTr() binding is
     // re-evaluated automatically when the Omarchy language changes.

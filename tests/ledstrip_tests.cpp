@@ -109,6 +109,23 @@ private slots:
         QCOMPARE(theme.accentForeground(), QString("white"));
     }
 
+    void themeReadsMode()
+    {
+        QTemporaryDir dir;
+        QDir(dir.path()).mkpath("theme");
+        QVERIFY(Theme(dir.path()).dark());
+
+        write(dir.path() + "/theme/colors.toml", "mode = \"dark\"\naccent = \"#112233\"\n");
+        QVERIFY(Theme(dir.path()).dark());
+
+        write(dir.path() + "/theme/colors.toml", "mode = \"light\"\naccent = \"#112233\"\n");
+        QVERIFY(!Theme(dir.path()).dark());
+
+        write(dir.path() + "/theme/colors.toml", "accent = \"#112233\"\n");
+        write(dir.path() + "/theme/light.mode", "");
+        QVERIFY(!Theme(dir.path()).dark());
+    }
+
     void themeFollowsHyprlandRounding()
     {
         QTemporaryDir dir;
@@ -136,7 +153,7 @@ private slots:
         QTemporaryDir dir;
         write(dir.path() + "/language", "fr\n");
         Translator translator(dir.path() + "/language", ":/i18n");
-        QCOMPARE(translator.translate("Main", "Retry"), QString("Réessayer"));
+        QCOMPARE(translator.translate("Main", "Try again"), QString("Réessayer"));
     }
 
     void translatorFollowsTheLanguageFile()

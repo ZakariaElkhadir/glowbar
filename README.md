@@ -17,8 +17,10 @@ never reports its own state, so the app remembers the last light it set.
 ## Features
 
 - Turn the strip on or off with one click or the Space key
-- Ten color presets, a hue slider and a brightness slider
+- Ten color presets, a custom hue and saturation picker, and a brightness slider
+- Scenes that set color and brightness together (Focus, Relax, Movie, Night)
 - Match the strip to your desktop theme (Omarchy/Hyprland)
+- Neobrutalist look in light and dark, following your Omarchy theme's mode live
 - English, French and Arabic built in
 - Reconnects automatically — the controller drops the BLE link every few
   seconds and the app quietly re-opens it and resends the last color
@@ -109,9 +111,16 @@ Every command is a 9-byte write to characteristic `0xFFE1` (service `0xFFE0`):
 |---------|-------|-------|
 | BLE control | ✅ via BlueZ | ✅ via CoreBluetooth |
 | Bluetooth on/off detection | ✅ | ⚠️ Not reported by CoreBluetooth — the scan simply times out |
-| Hyprland corner radius | ✅ | — (corners stay at 0) |
+| Light / dark mode | ✅ Omarchy | ⚠️ Always dark |
 | Desktop theme color | ✅ Omarchy | ⚠️ Falls back to yellow `#FFD60A` |
 | Language file | ✅ Omarchy | ⚠️ Falls back to English |
+
+## Fonts
+
+The UI bundles [Archivo Black](https://github.com/Omnibus-Type/ArchivoBlack),
+[Space Grotesk](https://github.com/floriankarsten/space-grotesk) and
+[Space Mono](https://github.com/googlefonts/spacemono), all under the SIL Open
+Font License (see `src/fonts/`).
 
 ## License
 

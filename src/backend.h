@@ -89,7 +89,7 @@ public:
      * Prefers @c keyboard.rgb (written by Omarchy for RGB keyboards) and
      * falls back to the theme accent color.
      */
-    QColor themeLightColor() const;
+    Q_INVOKABLE QColor themeLightColor() const;
 
     /** @brief Returns the BLE packets that would be sent on the next flush. */
     QList<QByteArray> pendingPackets() const;

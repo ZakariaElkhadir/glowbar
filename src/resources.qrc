@@ -1,6 +1,16 @@
 <RCC>
     <qresource prefix="/">
         <file alias="Main.qml">Main.qml</file>
+        <file alias="Neo.qml">Neo.qml</file>
+        <file alias="NbButton.qml">NbButton.qml</file>
+        <file alias="NbCard.qml">NbCard.qml</file>
+        <file alias="NbSlider.qml">NbSlider.qml</file>
+        <file alias="Kbd.qml">Kbd.qml</file>
+        <file alias="qmldir">qmldir</file>
+        <file alias="fonts/ArchivoBlack-Regular.ttf">fonts/ArchivoBlack-Regular.ttf</file>
+        <file alias="fonts/SpaceGrotesk.ttf">fonts/SpaceGrotesk.ttf</file>
+        <file alias="fonts/SpaceMono-Regular.ttf">fonts/SpaceMono-Regular.ttf</file>
+        <file alias="fonts/SpaceMono-Bold.ttf">fonts/SpaceMono-Bold.ttf</file>
         <file alias="i18n/en.json">i18n/en.json</file>
         <file alias="i18n/fr.json">i18n/fr.json</file>
         <file alias="i18n/ar.json">i18n/ar.json</file>

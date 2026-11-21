@@ -17,6 +17,7 @@ case "$OS" in
     PREFIX="${PREFIX:-/usr/local}"
     install -Dm755 "$ROOT/build/ledstrip" "$PREFIX/bin/ledstrip"
     install -Dm644 "$ROOT/LICENSE" "$PREFIX/share/licenses/ledstrip/LICENSE"
+    install -Dm644 -t "$PREFIX/share/licenses/ledstrip/fonts" "$ROOT"/src/fonts/OFL-*.txt
     install -Dm644 "$ROOT/pkgbuild/ledstrip.svg" "$PREFIX/share/icons/hicolor/scalable/apps/ledstrip.svg"
     install -Dm644 "$ROOT/pkgbuild/ledstrip.desktop" "$PREFIX/share/applications/ledstrip.desktop"
     echo "Installed to $PREFIX"

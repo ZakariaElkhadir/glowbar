@@ -21,6 +21,7 @@ class Theme : public QObject {
     Q_PROPERTY(QString accent READ accent NOTIFY changed)
     Q_PROPERTY(QString accentForeground READ accentForeground NOTIFY changed)
     Q_PROPERTY(int radius READ radius NOTIFY changed)
+    Q_PROPERTY(bool dark READ dark NOTIFY changed)
 
 public:
     /**
@@ -46,6 +47,17 @@ public:
      */
     QString accentForeground() const;
 
+    /** @brief Returns @c true unless the Omarchy theme declares itself light. */
+    bool dark() const { return m_dark; }
+
+    /**
+     * @brief Reads whether the theme in @p directory is dark.
+     *
+     * Looks for @c mode = "light" in @c colors.toml, or a @c light.mode marker
+     * file (older Omarchy themes).  Defaults to dark.
+     */
+    static bool readDark(const QString &directory);
+
     /** @brief Returns the current Hyprland corner radius in pixels (0 when unavailable). */
     int radius() const { return m_radius; }
 
@@ -65,6 +77,7 @@ private:
 
     QString m_directory;
     QString m_accent = "#FFD60A";
+    bool m_dark = true;
     QFileSystemWatcher m_watcher;
     QTimer m_debounce;
     QString m_hyprctl;
