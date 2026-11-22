@@ -1,0 +1,36 @@
+name: Strip not found or not working
+description: Glowbar can't find your strip, or the strip doesn't respond
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Glowbar supports **LEDBLE-01** controllers. Close the strip's phone app
+        (or turn your phone's Bluetooth off) first: the controller accepts only
+        one connection at a time.
+  - type: input
+    id: name
+    attributes:
+      label: Bluetooth name of the strip
+      description: "As shown by `bluetoothctl scan on` or your phone, e.g. LEDBLE-0123ABCD"
+    validations:
+      required: true
+  - type: input
+    id: product
+    attributes:
+      label: Product or app name
+      description: The kit's name, or the phone app it came with (e.g. MohuanLED)
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: What Glowbar shows, and what the strip does
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: System
+      description: Distribution and version, desktop (e.g. Omarchy 3, Hyprland), and Glowbar version
+    validations:
+      required: true

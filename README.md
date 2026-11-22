@@ -122,6 +122,20 @@ The UI bundles [Archivo Black](https://github.com/Omnibus-Type/ArchivoBlack),
 [Space Mono](https://github.com/googlefonts/spacemono), all under the SIL Open
 Font License (see `src/fonts/`).
 
+## Contributing
+
+Bug reports, translations and support for more strip controllers are all
+welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Credits
+
+- Protocol research by [8none1/ledble-ledlamp](https://github.com/8none1/ledble-ledlamp)
+- Theme and translation handling adapted from Omacut and Monologue by David
+  Heinemeier Hansson (MIT)
+- Fonts under the SIL Open Font License (see above)
+
+Full notices are in [NOTICE](NOTICE).
+
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
