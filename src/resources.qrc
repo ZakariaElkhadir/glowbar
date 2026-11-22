@@ -6,6 +6,7 @@
         <file alias="NbCard.qml">NbCard.qml</file>
         <file alias="NbSlider.qml">NbSlider.qml</file>
         <file alias="Kbd.qml">Kbd.qml</file>
+        <file alias="NbTextField.qml">NbTextField.qml</file>
         <file alias="qmldir">qmldir</file>
         <file alias="fonts/ArchivoBlack-Regular.ttf">fonts/ArchivoBlack-Regular.ttf</file>
         <file alias="fonts/SpaceGrotesk.ttf">fonts/SpaceGrotesk.ttf</file>

@@ -40,13 +40,36 @@ ApplicationWindow {
         { label: QT_TR_NOOP("Warm"), color: "#ff9632" }
     ]
 
-    // A scene is a color and a brightness, applied together.
+    // A scene is a color and a brightness, applied together. "tone" names the
+    // color in the scene's subtitle.
     readonly property var scenes: [
-        { name: QT_TR_NOOP("Focus"), preset: 8, brightness: 100 },
-        { name: QT_TR_NOOP("Relax"), preset: 9, brightness: 40 },
-        { name: QT_TR_NOOP("Movie"), preset: 5, brightness: 20 },
-        { name: QT_TR_NOOP("Night"), preset: 0, brightness: 10 }
+        { name: QT_TR_NOOP("Focus"), tone: QT_TR_NOOP("White"), color: "#ffffff", brightness: 100 },
+        // Warm white for reading: bright, with the blue held back so it's easy
+        // on the eyes in the evening.
+        { name: QT_TR_NOOP("Reading"), tone: QT_TR_NOOP("Warm white"), color: "#ffb46b", brightness: 90 },
+        { name: QT_TR_NOOP("Relax"), tone: QT_TR_NOOP("Warm"), color: "#ff9632", brightness: 40 },
+        { name: QT_TR_NOOP("Movie"), tone: QT_TR_NOOP("Blue"), color: "#0000ff", brightness: 20 },
+        { name: QT_TR_NOOP("Night"), tone: QT_TR_NOOP("Red"), color: "#ff0000", brightness: 10 },
+
+        // Shown under "More scenes".
+        { more: true, name: QT_TR_NOOP("Deep work"), tone: QT_TR_NOOP("Cool white"), color: "#dfe8ff", brightness: 100 },
+        { more: true, name: QT_TR_NOOP("Coding"), tone: QT_TR_NOOP("Cyan"), color: "#40d0ff", brightness: 35 },
+        { more: true, name: QT_TR_NOOP("Video call"), tone: QT_TR_NOOP("Neutral white"), color: "#fff0dc", brightness: 70 },
+        { more: true, name: QT_TR_NOOP("Sunset"), tone: QT_TR_NOOP("Amber"), color: "#ff6a1a", brightness: 50 },
+        { more: true, name: QT_TR_NOOP("Candle"), tone: QT_TR_NOOP("Deep orange"), color: "#ff4500", brightness: 15 },
+        { more: true, name: QT_TR_NOOP("Wind down"), tone: QT_TR_NOOP("Amber"), color: "#ff7a20", brightness: 20 },
+        { more: true, name: QT_TR_NOOP("Gaming"), tone: QT_TR_NOOP("Purple"), color: "#a000ff", brightness: 80 },
+        { more: true, name: QT_TR_NOOP("Party"), tone: QT_TR_NOOP("Pink"), color: "#ff2878", brightness: 100 },
+        { more: true, name: QT_TR_NOOP("Ocean"), tone: QT_TR_NOOP("Teal"), color: "#00c8b4", brightness: 50 },
+        { more: true, name: QT_TR_NOOP("Forest"), tone: QT_TR_NOOP("Green"), color: "#30d060", brightness: 40 }
     ]
+
+    property bool moreScenesOpen: false
+    readonly property bool moreScenesShown: moreScenesOpen
+    // The extra scene that's on, if any; named on the toggle while the list
+    // is closed so it isn't hidden.
+    readonly property var activeMoreScene: win.scenes.find(scene => scene.more && win.sceneSelected(scene)) || null
+
 
     readonly property bool problem: ["noAdapter", "bluetoothOff", "notFound", "error"].indexOf(backend.state) >= 0
     readonly property bool busy: ["searching", "connecting"].indexOf(backend.state) >= 0
@@ -90,7 +113,7 @@ ApplicationWindow {
 
     function sceneSelected(scene) {
         return backend.power && backend.brightness === scene.brightness
-               && Qt.colorEqual(backend.color, win.presets[scene.preset].color)
+               && Qt.colorEqual(backend.color, scene.color)
     }
 
     // What the strip is showing, in words: a scene, a preset, or the hex value.
@@ -104,6 +127,14 @@ ApplicationWindow {
 
     function hex(c) {
         return c.toString().toUpperCase()
+    }
+
+    // "#FF8800", "ff8800" or "#f80" → "#ff8800"; null when it isn't a color.
+    function parseHex(text) {
+        let digits = text.trim().replace(/^#/, "")
+        if (/^[0-9a-fA-F]{3}$/.test(digits))
+            digits = digits.split("").map(d => d + d).join("")
+        return /^[0-9a-fA-F]{6}$/.test(digits) ? "#" + digits.toLowerCase() : null
     }
 
     function setHueAndSaturation(hue, saturation) {
@@ -191,6 +222,62 @@ ApplicationWindow {
         }
     }
 
+    // One scene in the sidebar; shared by the main list and "More scenes".
+    Component {
+        id: sceneDelegate
+        NbButton {
+            id: sceneButton
+            required property var modelData
+            readonly property bool current: win.sceneSelected(modelData)
+            Layout.fillWidth: true
+            Layout.rightMargin: 4
+            implicitHeight: 56
+            padding: 10
+            latched: current
+            fill: current ? Neo.pink : Neo.card
+            ink: current ? "#000000" : Neo.ink
+            text: qsTr(modelData.name)
+            onClicked: {
+                backend.setColor(modelData.color)
+                backend.setBrightness(modelData.brightness)
+            }
+
+            contentItem: RowLayout {
+                spacing: 12
+                Rectangle {
+                    implicitWidth: 30
+                    implicitHeight: 30
+                    color: sceneButton.modelData.color
+                    border.width: 2
+                    border.color: "#000000"
+                }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+                    Label {
+                        Layout.fillWidth: true
+                        text: sceneButton.text
+                        font.pixelSize: 15
+                        font.bold: true
+                        color: sceneButton.ink
+                        elide: Text.ElideRight
+                    }
+                    Label {
+                        Layout.fillWidth: true
+                        text: (translator.language, qsTr("%1 · %2")
+                               .arg(qsTr(sceneButton.modelData.tone))
+                               .arg(win.percent(sceneButton.modelData.brightness)))
+                        font.family: Neo.mono
+                        font.pixelSize: 11
+                        font.capitalization: Font.AllUppercase
+                        color: sceneButton.ink
+                        elide: Text.ElideRight
+                    }
+                }
+            }
+        }
+    }
+
     // Right-to-left languages mirror the window; the Translator sets the
     // application's layout direction.
     Item {
@@ -204,6 +291,16 @@ ApplicationWindow {
             contentWidth: width
             contentHeight: page.implicitHeight + 64
             boundsBehavior: Flickable.StopAtBounds
+
+            // Clicking the background ends typing in the color code field, so
+            // the keyboard shortcuts work again.
+            MouseArea {
+                parent: flick.contentItem
+                width: flick.contentWidth
+                height: flick.contentHeight
+                z: -1
+                onPressed: mouse => { flick.forceActiveFocus(); mouse.accepted = false }
+            }
             ScrollBar.vertical: ScrollBar {}
 
             GridLayout {
@@ -302,57 +399,52 @@ ApplicationWindow {
                             SectionLabel { text: qsTr("Scenes") }
 
                             Repeater {
-                                model: win.scenes
-                                delegate: NbButton {
-                                    id: sceneButton
-                                    required property var modelData
-                                    readonly property bool current: win.sceneSelected(modelData)
-                                    Layout.fillWidth: true
-                                    Layout.rightMargin: 4
-                                    implicitHeight: 56
-                                    padding: 10
-                                    latched: current
-                                    fill: current ? Neo.pink : Neo.card
-                                    ink: current ? "#000000" : Neo.ink
-                                    text: qsTr(modelData.name)
-                                    onClicked: {
-                                        backend.setColor(win.presets[modelData.preset].color)
-                                        backend.setBrightness(modelData.brightness)
-                                    }
+                                model: win.scenes.filter(scene => !scene.more)
+                                delegate: sceneDelegate
+                            }
 
-                                    contentItem: RowLayout {
-                                        spacing: 12
-                                        Rectangle {
-                                            implicitWidth: 30
-                                            implicitHeight: 30
-                                            color: win.presets[sceneButton.modelData.preset].color
-                                            border.width: 2
-                                            border.color: "#000000"
-                                        }
-                                        ColumnLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 0
-                                            Label {
-                                                Layout.fillWidth: true
-                                                text: sceneButton.text
-                                                font.pixelSize: 15
-                                                font.bold: true
-                                                color: sceneButton.ink
-                                                elide: Text.ElideRight
-                                            }
-                                            Label {
-                                                Layout.fillWidth: true
-                                                text: (translator.language, qsTr("%1 · %2")
-                                                       .arg(qsTr(win.presets[sceneButton.modelData.preset].label))
-                                                       .arg(win.percent(sceneButton.modelData.brightness)))
-                                                font.family: Neo.mono
-                                                font.pixelSize: 11
-                                                font.capitalization: Font.AllUppercase
-                                                color: sceneButton.ink
-                                                elide: Text.ElideRight
-                                            }
-                                        }
+                            NbButton {
+                                id: moreToggle
+                                Layout.fillWidth: true
+                                Layout.rightMargin: 4
+                                implicitHeight: 44
+                                leftPadding: 14
+                                rightPadding: 14
+                                readonly property bool showsActive: !win.moreScenesShown && win.activeMoreScene !== null
+                                latched: showsActive
+                                fill: showsActive ? Neo.pink : Neo.subtle
+                                ink: showsActive ? "#000000" : Neo.ink
+                                text: (translator.language, win.moreScenesShown ? qsTr("Fewer scenes")
+                                      : showsActive ? qsTr("More scenes: %1").arg(qsTr(win.activeMoreScene.name))
+                                      : qsTr("More scenes"))
+                                onClicked: win.moreScenesOpen = !win.moreScenesOpen
+                                contentItem: RowLayout {
+                                    spacing: 8
+                                    Label {
+                                        Layout.fillWidth: true
+                                        elide: Text.ElideRight
+                                        text: moreToggle.text
+                                        font.pixelSize: 14
+                                        font.bold: true
+                                        color: moreToggle.ink
                                     }
+                                    Label {
+                                        text: win.moreScenesShown ? "−" : "+"
+                                        font.family: Neo.mono
+                                        font.pixelSize: 18
+                                        font.bold: true
+                                        color: moreToggle.ink
+                                    }
+                                }
+                            }
+
+                            ColumnLayout {
+                                visible: win.moreScenesShown
+                                Layout.fillWidth: true
+                                spacing: 14
+                                Repeater {
+                                    model: win.scenes.filter(scene => scene.more)
+                                    delegate: sceneDelegate
                                 }
                             }
                         }
@@ -797,6 +889,62 @@ ApplicationWindow {
                                         fromColor: "#FFFFFF"
                                         toColor: Qt.hsva(win.customHue / 359, 1, 1, 1)
                                         onMoved: win.setHueAndSaturation(win.customHue, value)
+                                    }
+
+                                    SectionLabel {
+                                        Layout.topMargin: 12
+                                        Layout.bottomMargin: 8
+                                        text: qsTr("Color code")
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 14
+
+                                        NbTextField {
+                                            id: hexField
+                                            objectName: "hexField"
+                                            Layout.preferredWidth: 180
+                                            readonly property string parsed: win.parseHex(text) || ""
+                                            invalid: text.length > 0 && !parsed && !activeFocus
+                                            placeholderText: "#FF8800"
+                                            maximumLength: 7
+                                            font.capitalization: Font.AllUppercase
+                                            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhPreferUppercase
+                                            validator: RegularExpressionValidator { regularExpression: /#?[0-9A-Fa-f]{0,6}/ }
+                                            Accessible.name: qsTr("Color code")
+
+                                            function apply() {
+                                                if (!parsed) return
+                                                backend.setColor(parsed)
+                                                // Hand the keyboard back to the shortcuts.
+                                                flick.forceActiveFocus()
+                                            }
+                                            function showCurrent() { text = win.hex(backend.color) }
+
+                                            Component.onCompleted: showCurrent()
+                                            onAccepted: apply()
+                                            Keys.onEscapePressed: { showCurrent(); flick.forceActiveFocus() }
+                                            // Follow the strip's color, except while being edited.
+                                            onActiveFocusChanged: if (!activeFocus && !parsed) showCurrent()
+                                            Connections {
+                                                target: backend
+                                                function onLightChanged() { if (!hexField.activeFocus) hexField.showCurrent() }
+                                            }
+                                        }
+                                        NbButton {
+                                            leftPadding: 18
+                                            rightPadding: 18
+                                            enabled: hexField.parsed !== ""
+                                            opacity: enabled ? 1 : 0.5
+                                            text: qsTr("Apply")
+                                            onClicked: hexField.apply()
+                                        }
+                                    }
+                                    Muted {
+                                        Layout.topMargin: 8
+                                        Layout.fillWidth: true
+                                        wrapMode: Text.Wrap
+                                        text: qsTr("Type a hex code like #FF8800 or #F80, then press Enter.")
                                     }
                                 }
                             }
